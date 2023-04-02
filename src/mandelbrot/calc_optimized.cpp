@@ -1,10 +1,10 @@
 #include <immintrin.h>
 #include "calculations.h"
 
-union m512
+union m512i
 {
-    float scalars[16];
-    __m512 vector;
+    int scalars[16];
+    __m512i vector;
 };
 
 void calculate_pixels_optimized(const ScreenState* screen, PixelColor* pixels)
@@ -106,17 +106,28 @@ void calculate_pixels_optimized(const ScreenState* screen, PixelColor* pixels)
                                     color_base,
                                     color_base);
             
-            m512 red01   = { .vector = _mm512_sub_ps(color_base, base_pow2) };
-            m512 green01 = { .vector = _mm512_sub_ps(base_root,
-                                _mm512_mul_ps(base_root, color_base)) };
-            m512 blue01  = { .vector = _mm512_sqrt_ps(
-                                _mm512_sub_ps(base_root, color_base)) };
+            __m512 red   = _mm512_sub_ps(color_base, base_pow2);
+            __m512 green = _mm512_sub_ps(base_root,
+                                _mm512_mul_ps(base_root, color_base));
+            __m512 blue  = _mm512_sqrt_ps(
+                                _mm512_sub_ps(base_root, color_base));
+            
+            red   = _mm512_mul_ps(red,   _mm512_set1_ps(4*255));
+            green = _mm512_mul_ps(green, _mm512_set1_ps(255));
+            blue  = _mm512_mul_ps(blue,  _mm512_set1_ps(255));
+
+            m512i red_int   = { .vector = _mm512_cvt_roundps_epi32(red,
+                                _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC) };
+            m512i green_int = { .vector = _mm512_cvt_roundps_epi32(green,
+                                _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC) };
+            m512i blue_int  = { .vector = _mm512_cvt_roundps_epi32(blue,
+                                _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC) };
 
             for (size_t i = 0; i < 16; i++)
                 line[col + i] = {
-                    .red   = (uint8_t) (4*255 * red01  .scalars[15 - i]),
-                    .green = (uint8_t) (255   * green01.scalars[15 - i]),
-                    .blue  = (uint8_t) (255   * blue01 .scalars[15 - i]),
+                    .red   = (uint8_t) (red_int  .scalars[15 - i]),
+                    .green = (uint8_t) (green_int.scalars[15 - i]),
+                    .blue  = (uint8_t) (blue_int .scalars[15 - i]),
                     .alpha = (uint8_t) (255)
                 };
             
