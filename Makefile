@@ -18,15 +18,15 @@ CFLAGS=-D _DEBUG -ggdb3 -std=c++2a -O0 -Wall -Wextra -Weffc++\
 }integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,${strip \
 }returns-nonnull-attribute,shift,signed-integer-overflow,undefined,${strip \
 }unreachable,vla-bound,vptr\
--pie -Wlarger-than=8192 -Wstack-usage=8192
+-pie -Wlarger-than=8192 -Wstack-usage=8192 -mavx512f
 
 BUILDTYPE?=Debug
 
 ifeq ($(BUILDTYPE), Release)
-	CFLAGS=-std=c++2a -O3 -Wall
+	CFLAGS=-std=c++2a -O3 -Wall -mavx512f
 endif
 
-PROJECT	:= project
+PROJECT	:= mandelbrot
 VERSION := 0.0.1
 
 SRCDIR	:= src
@@ -45,7 +45,8 @@ LIBS	:= $(patsubst lib%.a, %, $(shell find $(LIBDIR) -type f))
 OBJECTS	:= $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
 INCFLAGS:= -I$(SRCDIR) -I$(INCDIR)
-LFLAGS  := -Llib/ $(addprefix -l, $(LIBS))
+LFLAGS  := -Llib/ $(addprefix -l, $(LIBS))\
+			-lsfml-graphics -lsfml-window -lsfml-system
 
 all: $(BINDIR)/$(PROJECT)
 
