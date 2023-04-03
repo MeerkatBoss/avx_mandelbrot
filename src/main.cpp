@@ -3,68 +3,58 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "logger/logger.h"
 #include "mandelbrot/calculations.h"
+#include "display/display.h"
 
 static const size_t window_size_x = 1024;
 static const size_t window_size_y = 720;
 
 int main()
 {
+    add_default_file_logger();
+    add_logger({
+        .name = "Console logger",
+        .stream = stderr,
+        .logging_level = LOG_ERROR,
+        .settings_mask = LGS_USE_ESCAPE | LGS_KEEP_OPEN
+    });
+
     char buffer[16] = "";
- // TODO: Extract some of SFML logic from here
-    sf::RenderWindow window(
-            sf::VideoMode(window_size_x, window_size_y),
-            "Mandelbrot Set",
-            sf::Style::Titlebar | sf::Style::Close);
 
-    sf::Texture texture;
-    texture.create(window_size_x, window_size_y);
-    sf::Sprite sprite;
-    sprite.setTexture(texture);
-
-    sf::Font font;
-    font.loadFromFile("assets/LobsterTwo-BoldItalic.ttf");
-    sf::Text fps;
-    fps.setFont(font);
-    fps.setFillColor(sf::Color::White);
-
-    ScreenState state = {
-        .size_x_px = window_size_x,
-        .size_y_px = window_size_y,
-        .unit_len_px = 600.f,
-
-        .max_iterations = 256,
-        .escape_radius = 10.f,
-
-        .scale = { 1, 1 },
-        .center = { -0.7f, 0 }
+    RenderScene scene = {};
+    RenderConfig config = {
+        .window_width = window_size_x,
+        .window_height = window_size_y,
+        .quality = QUALITY_MEDIUM
     };
 
-    PixelColor* pixels = NULL;
-    posix_memalign((void**)&pixels, BUFFER_ALIGNMENT,
-                    window_size_x * window_size_y * sizeof(*pixels));
+    int init_status = sfml_scene_init(&scene, &config);
+    LOG_ASSERT_ERROR(init_status == 0, return 1,
+                    "Failed to initialize scene", NULL);
     sf::Clock clock;
-    while (window.isOpen())
+    while (scene.window.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (scene.window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                window.close();
+                scene.window.close();
         }
 
-        window.clear(sf::Color::White);
+        scene.window.clear(sf::Color::White);
         float timeDelta = clock.restart().asSeconds();
         snprintf(buffer, 16, "%.1f FPS", 1.f/timeDelta);
-        fps.setString(buffer);
+        scene.fps_text.setString(buffer);
 
-        calculate_pixels_optimized(&state, pixels);
-        texture.update((const sf::Uint8*) pixels);
+        calculate_pixels_optimized(&scene.screen, scene.texture_pixels);
+        scene.mandelbrot_texture.update(
+                        (const sf::Uint8*) scene.texture_pixels);
 
-        window.draw(sprite);
-        window.draw(fps);
-        window.display();
+        scene.window.draw(scene.mandelbrot_sprite);
+        scene.window.draw(scene.fps_text);
+        scene.window.display();
     }
 
-    free(pixels);
+    free(scene.texture_pixels);
 }

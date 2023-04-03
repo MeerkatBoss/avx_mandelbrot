@@ -14,7 +14,7 @@
 
 /* To avoid including <immintrin.h> and explicitly checking for alignment
  * requirement of `__m512` and `__m512i` we can use explicit constant */
-#define BUFFER_ALIGNMENT 64
+// #define BUFFER_ALIGNMENT 64
 
 struct PixelColor
 {
@@ -41,6 +41,21 @@ struct ScreenState
 
     Vector2D scale;             /* Scaling coefficients */
     Vector2D center;            /* Center coordinates */
+};
+
+enum RenderQuality
+{
+    QUALITY_LOW    = 128,
+    QUALITY_MEDIUM = 256,
+    QUALITY_HIGH   = 512
+};
+
+struct RenderConfig
+{
+    size_t window_width;
+    size_t window_height;
+
+    RenderQuality quality;
 };
 
 #endif /* definitions.h */

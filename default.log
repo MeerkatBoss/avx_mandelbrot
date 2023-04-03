@@ -1,0 +1,10 @@
+<2023-04-03 23:13:22+0300>	[Info]	Started logging at 'Default file logger'
+<2023-04-03 23:13:22+0300>	[Info]	Started logging at 'Console logger'
+<2023-04-03 23:13:22+0300>	[WARN]	Condition 'init_success' not met in 'int main():67', file: src/main.cpp
+<2023-04-03 23:13:22+0300>	[ERROR]	Failed to initialize scene
+<2023-04-03 23:13:31+0300>	[Info]	Started logging at 'Default file logger'
+<2023-04-03 23:13:31+0300>	[Info]	Started logging at 'Console logger'
+<2023-04-03 23:13:31+0300>	[WARN]	Condition 'init_success' not met in 'int main():67', file: src/main.cpp
+<2023-04-03 23:13:31+0300>	[ERROR]	Failed to initialize scene
+<2023-04-03 23:14:00+0300>	[Info]	Started logging at 'Default file logger'
+<2023-04-03 23:14:00+0300>	[Info]	Started logging at 'Console logger'

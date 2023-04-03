@@ -12,6 +12,37 @@
 #ifndef __MANDELBROT_DISPLAY_H
 #define __MANDLEBROT_DISPLAY_H
 
+#include <SFML/Graphics.hpp>
+
+#include "commons/definitions.h"
+
+struct RenderScene
+{
+    sf::RenderWindow    window;   
+    ScreenState         screen;
+    
+    PixelColor*         texture_pixels;
+    sf::Texture         mandelbrot_texture;
+    sf::Sprite          mandelbrot_sprite;
+
+    sf::Font            fps_font;
+    sf::Text            fps_text;
+};
+
+/**
+ * @brief Initialize scene state for future rendering
+ *
+ * @param[out] scene	        - scene to be initialized
+ * @param[in]  config	        - rendering configuration
+ */
+int sfml_scene_init(RenderScene* scene, const RenderConfig* config);
+
+/**
+ * @brief Run main loop on given render scene
+ *
+ * @param[in] scene	            - active render scene
+ */
+void run_main_loop(RenderScene* scene);
 
 
 #endif /* display.h */
