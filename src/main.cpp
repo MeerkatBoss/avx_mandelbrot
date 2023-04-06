@@ -20,8 +20,6 @@ int main()
         .settings_mask = LGS_USE_ESCAPE | LGS_KEEP_OPEN
     });
 
-    char buffer[16] = "";
-
     RenderScene scene = {};
     RenderConfig config = {
         .window_width = window_size_x,
@@ -29,32 +27,11 @@ int main()
         .quality = QUALITY_MEDIUM
     };
 
-    int init_status = sfml_scene_init(&scene, &config);
+    int init_status = render_scene_init(&scene, &config);
     LOG_ASSERT_ERROR(init_status == 0, return 1,
                     "Failed to initialize scene", NULL);
-    sf::Clock clock;
-    while (scene.window.isOpen())
-    {
-        sf::Event event;
-        while (scene.window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                scene.window.close();
-        }
 
-        scene.window.clear(sf::Color::White);
-        float timeDelta = clock.restart().asSeconds();
-        snprintf(buffer, 16, "%.1f FPS", 1.f/timeDelta);
-        scene.fps_text.setString(buffer);
+    run_main_loop(&scene);
 
-        calculate_pixels_optimized(&scene.screen, scene.texture_pixels);
-        scene.mandelbrot_texture.update(
-                        (const sf::Uint8*) scene.texture_pixels);
-
-        scene.window.draw(scene.mandelbrot_sprite);
-        scene.window.draw(scene.fps_text);
-        scene.window.display();
-    }
-
-    free(scene.texture_pixels);
+    render_scene_dispose(&scene);
 }

@@ -54,10 +54,10 @@ void calculate_pixels_simple(const ScreenState* screen, PixelColor* pixels)
             float base_pow2 = color_base * color_base;
 
             line[col] = {
-                .red   = (uint8_t) 4*255 * (color_base - base_pow2),
-                .green = (uint8_t) 255 * (base_root - base_root*color_base),
-                .blue  = (uint8_t) 255 * sqrt(base_root - color_base),
-                .alpha = (uint8_t) 255
+                .red   = (uint8_t)(int)(4*255 * (color_base - base_pow2)),
+                .green = (uint8_t)(int)(255 * (base_root - base_root*color_base)),
+                .blue  = (uint8_t)(int)(255 * sqrt(base_root - color_base)),
+                .alpha = (uint8_t)      255
             };
         }
     }

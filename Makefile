@@ -36,10 +36,13 @@ PROJECT	:= mandelbrot
 VERSION := 0.0.1
 
 SRCDIR	:= src
-OBJDIR 	:= obj
-BINDIR	:= bin
+TESTDIR := tests
 LIBDIR	:= lib
 INCDIR	:= include
+
+BUILDDIR:= build
+OBJDIR 	:= $(BUILDDIR)/obj
+BINDIR	:= $(BUILDDIR)/bin
 
 SRCEXT	:= cpp
 HEADEXT	:= h
@@ -47,8 +50,10 @@ OBJEXT	:= o
 
 
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
+TESTS	:= $(shell find $(TESTDIR) -type f -name "*$(SRCEXT)")
 LIBS	:= $(patsubst lib%.a, %, $(shell find $(LIBDIR) -type f))
 OBJECTS	:= $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
+TESTOBJS:= $(patsubst %,$(OBJDIR)/%,$(TESTS:.$(SRCEXT)=.$(OBJEXT)))
 
 INCFLAGS:= -I$(SRCDIR) -I$(INCDIR)
 LFLAGS  := -Llib/ $(addprefix -l, $(LIBS))\
@@ -75,15 +80,25 @@ build_lib: $(OBJECTS)
 	@rm -r dist/include
 	@rm -r dist/lib
 
+# Build test objects
+$(OBJDIR)/$(TESTDIR)/%.$(OBJEXT): $(TESTDIR)/%.$(SRCEXT)
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $(INCFLAGS) -I$(TESTDIR) -c $< -o $@
 
-
+# Build source objects
 $(OBJDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(INCFLAGS) -c $< -o $@
 
+# Build project binary
 $(BINDIR)/$(PROJECT): $(OBJECTS)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $^ $(LFLAGS) -o $(BINDIR)/$(PROJECT)
+
+# Build test binary
+$(BINDIR)/$(PROJECT)_tests: $(filter-out %/main.o,$(OBJECTS)) $(TESTOBJS)
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $^ $(LFLAGS) -o $(BINDIR)/$(PROJECT)_tests
 
 clean:
 	@rm -rf $(OBJDIR)
@@ -93,6 +108,9 @@ cleaner: clean
 
 run: $(BINDIR)/$(PROJECT)
 	$(BINDIR)/$(PROJECT) $(ARGS)
+
+test: $(BINDIR)/$(PROJECT)_tests
+	 $(BINDIR)/$(PROJECT)_tests $(ARGS)
 
 .PHONY: all remake clean cleaner
 

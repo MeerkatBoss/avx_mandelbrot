@@ -12,10 +12,6 @@
 #ifndef __MANDELBROT_DEFINITIONS_H
 #define __MANDELBROT_DEFINITIONS_H
 
-/* To avoid including <immintrin.h> and explicitly checking for alignment
- * requirement of `__m512` and `__m512i` we can use explicit constant */
-// #define BUFFER_ALIGNMENT 64
-
 struct PixelColor
 {
     uint8_t red;

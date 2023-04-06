@@ -1,0 +1,4 @@
+without SIMD: 104.35ms (~3.91ms)
+   with SIMD: 11.13ms (~1.01ms)
+
+Performance increase: 9.38 (~1.20)

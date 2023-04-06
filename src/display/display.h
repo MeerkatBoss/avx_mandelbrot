@@ -34,8 +34,18 @@ struct RenderScene
  *
  * @param[out] scene	        - scene to be initialized
  * @param[in]  config	        - rendering configuration
+ *
+ * @return 0 upon success, -1 upon error
  */
-int sfml_scene_init(RenderScene* scene, const RenderConfig* config);
+int render_scene_init(RenderScene* scene, const RenderConfig* config);
+
+/**
+ * @brief Free memory, allocated in `render_scene_init`.
+ * Scene can be safely destroyed afterwards.
+ *
+ * @param[inout] scene	        - scene to be disposed
+ */
+void render_scene_dispose(RenderScene* scene);
 
 /**
  * @brief Run main loop on given render scene
